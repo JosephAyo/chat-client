@@ -48,6 +48,7 @@ fn main() {
             Err(_) => (),
         }
 
+        thread::sleep(Duration::from_millis(100));
     });
 
     loop {
