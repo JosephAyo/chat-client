@@ -1,8 +1,9 @@
 use std::{
     io::{stdin, ErrorKind, Read, Write},
     net::TcpStream,
-    sync::mpsc::channel,
+    sync::mpsc::{channel, TryRecvError},
     thread,
+    time::Duration,
 };
 
 const LOCAL_ADDR: &str = "127.0.0.1:3422";
@@ -39,9 +40,14 @@ fn main() {
                     .write_all(&message_buff)
                     .expect("failed to message send to socket");
                 println!("Message sent {:?}", message);
-            },
+            }
+            Err(TryRecvError::Disconnected) => {
+                println!("channel disconnected");
+                break;
+            }
             Err(_) => (),
         }
+
     });
 
     loop {
@@ -54,7 +60,7 @@ fn main() {
             .expect("failed to read user input");
 
         sender
-            .send(user_input)
+            .send(user_input.trim().to_string())
             .expect("failed to send message over channel");
     }
 }
