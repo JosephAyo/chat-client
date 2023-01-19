@@ -17,6 +17,21 @@ fn main() {
 
     let (sender, receiver) = channel::<String>();
 
+    thread::spawn(move || loop {
+        let mut message_buff = vec![0; MESSAGE_SIZE];
+        match client.read_exact(&mut message_buff) {
+            Ok(_) => {
+                let message = String::from_utf8(message_buff).expect("buffer not valid utf8");
+                println!("received message: {}", message);
+            }
+            Err(ref err) if err.kind() == ErrorKind::WouldBlock => (),
+            Err(_) => {
+                println!("lost connection to server");
+                break;
+            }
+        }
+    });
+
     loop {
         let mut user_input = String::new();
 
