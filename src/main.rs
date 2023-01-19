@@ -30,6 +30,18 @@ fn main() {
                 break;
             }
         }
+
+        match receiver.try_recv() {
+            Ok(message) => {
+                let mut message_buff = message.clone().into_bytes();
+                message_buff.resize(MESSAGE_SIZE, 0);
+                client
+                    .write_all(&message_buff)
+                    .expect("failed to message send to socket");
+                println!("Message sent {:?}", message);
+            },
+            Err(_) => (),
+        }
     });
 
     loop {
